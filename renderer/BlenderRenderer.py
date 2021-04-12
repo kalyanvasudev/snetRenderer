@@ -1,12 +1,13 @@
 import numpy as np
 import sys, glob
-from global_variables import *
+from .global_variables import *
 import os
 import subprocess
 import matplotlib.pyplot as plt
 import pickle
 import scipy.io
 import scipy.misc
+import imageio
 
 import OpenEXR, Imath
 from scipy.signal import convolve2d as conv2
@@ -55,26 +56,25 @@ class Renderer:
         self.modelIndex = i
 
     def renderViews(self, poseSamples, outDir):
-        dist_low, dist_high = 2,2
         if not os.path.exists(outDir):
             os.makedirs(outDir)
         viewFile = os.path.join(outDir, 'view.txt')
         viewFout = open(viewFile,'w')
 
         ## render from blender
-        for theta in poseSamples:
-            eulers = theta.getVar('rot')
+        for eulers in poseSamples:
+            #eulers = theta.getVar('rot')
             az = eulers[0]
             el = eulers[1]
             tilt = eulers[2]
-            dist = (dist_high-dist_low)*np.random.random() + dist_low
+            dist = eulers[3]
             viewFout.write(' '.join(map(str,[az, el, tilt, dist])))
             viewFout.write('\n')
         viewFout.close()
         prefix = 'init'
         render_cmd = '%s %s --background --python %s -- %s %s %s %s' % (g_blender_executable_path, g_blank_blend_file_path, g_blender_python_script, self.models[self.modelIndex], viewFile,prefix, outDir)
         render_cmd_debug = '%s %s --python %s -- %s %s %s %s' % (g_blender_executable_path, g_blank_blend_file_path, g_blender_python_script, self.models[self.modelIndex], viewFile,prefix, outDir)
-        #print render_cmd
+        #print(render_cmd)
         os.system(render_cmd)
 
         ## augment normals
@@ -102,7 +102,8 @@ class Renderer:
             im_rgb = np.dstack([normalize(np.dstack([r,g,b])), a])
 
             saveUint16(depthToint16(dmap), dFile)
-            scipy.misc.imsave(rgbFile, im_rgb)
+
+            imageio.imwrite(rgbFile, im_rgb)
 
             exrimage.close()
 
@@ -133,7 +134,7 @@ class Renderer:
             renders = [renders[ix] for ix in range(nViews)]
 
         for render in renders:
-            print render
+            #print(render)
             rgbIm = scipy.misc.imread(render)
             dMap = loadDepth(render.replace('render_','depth_'))
             plt.figure(figsize=(12,6))
@@ -142,7 +143,7 @@ class Renderer:
             dMap[dMap>=10] = np.nan
             plt.subplot(122)
             plt.imshow(dMap)
-            print(np.nanmax(dMap),np.nanmin(dMap))
+            #print(np.nanmax(dMap),np.nanmin(dMap))
             plt.show()
 
     def reInit(self, modelNames):

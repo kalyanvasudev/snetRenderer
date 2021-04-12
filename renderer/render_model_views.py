@@ -232,7 +232,7 @@ def obj_centened_camera_pos(dist, azimuth_deg, elevation_deg):
 # bpy.context.scene.cycles.device = 'GPU'
 
 # Rendering parameters
-im_x, im_y = 224, 224
+im_x, im_y = 256, 256
 print("starting")
 bpy.context.scene.render.resolution_percentage = 50
 bpy.context.scene.render.resolution_x = im_x*(100/bpy.context.scene.render.resolution_percentage)
@@ -250,7 +250,7 @@ bpy.context.scene.render.threads = 8
 
 ###### Camera settings ######
 camObj = bpy.data.objects['Camera']
-camObj.data.lens = 60 # 60 mm focal length
+camObj.data.lens = 80 # 60 mm focal length
 camObj.data.sensor_height = 32.0
 camObj.data.sensor_width = float(camObj.data.sensor_height)/im_y*im_x
 # camObj.data.type = 'ORTHO'
@@ -353,11 +353,11 @@ for param in view_params:
     bpy.ops.render.render(write_still=True)
     
     # get camera matrix and write to file
-    print(bpy.data.objects['Camera'].data)
+    #print(bpy.data.objects['Camera'].data)
     K = get_calibration_matrix_K_from_blender(bpy.data.objects['Camera'].data)
     print(K)
     #print(bpy.data.objects['Camera'].matrix_world.inverted())
-    print(bpy.data.objects['Camera'].matrix_world)
+    #print(bpy.data.objects['Camera'].matrix_world)
     extrinsic = get_4x4_RT_matrix_from_blender(bpy.data.objects['Camera'])
     np.savetxt(os.path.join(syn_images_folder, K_file), K)
     
