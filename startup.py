@@ -15,5 +15,6 @@ def params():
     config['basedir'] = os.getcwd()
     config['shapenetDir'] = '/private/home/kalyanv/learning_vision3d/datasets/ShapeNetCore.v1' # shapenet folder, not used in this code
     #config['shapenetDir'] = '/data0/shubhtuls/datasets/ShapeNetCore.v2/' # shapenet folder, not used in this code
-    config['renderPrecomputeDir'] = '/private/home/kalyanv/learning_vision3d/datasets/blender/renders'
+    config['renderPrecomputeDir'] = '/private/home/kalyanv/learning_vision3d/datasets/blender/renders_encoder'
+    #config['renderPrecomputeDir'] = '/private/home/kalyanv/learning_vision3d/datasets/blender/renders'
     return config

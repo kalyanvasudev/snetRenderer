@@ -22,7 +22,7 @@ def mkdir_p(path):
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
         else: raise
-
+import time
 #import cPickle as pickle
 import pickle 
 import errno
@@ -76,9 +76,10 @@ class shapenetRenderer():
         poseSamples = []
         for n in range(self.numPoses):
             azim = -180 + 360 * random.random()
-            elev = -90 + 180 * random.random()
+            elev = 70 * random.random() # for encoder
+            #elev = -90  + 180 * random.random()
             theta = 0.0
-            dist = 1.3 + 0.7 * random.random()
+            dist = 1.8 + 0.7 * random.random()
             poseSample = [azim, elev, theta, dist]
             poseSamples.append(poseSample)
         return poseSamples
@@ -87,8 +88,17 @@ class shapenetRenderer():
 
 def initModelInfo(useV1=True):
     config = startup.params()
-    #self.synsets = ['02834778','02858304','02924116','03790512','04256520','04468005','03211117']
-    synsets = ['02691156']
+    # synsets = ['02858304','02924116','03790512','04468005', '02992529','02843684', '02954340']
+    # synsets = ['02933112','03636649','04090263','04379243','04530566',\
+    #           '02828884','03211117','03691459','04256520','04401088', '02691156','02958343', '03001627']
+    
+    synsets = ['02747177','02773838','02801938','02808440','02818832','02834778','02871439','02876657','02880940','02942699',
+            '02946921','03085013','03046257','03207941','03261776','03325088','03337140',
+               '03467517','03513137','03593526','03624134','03642806','03710193','03759954','03761084',
+               '03797390','03928116','03938244','03948459','03991062','04004475',
+               '04074963','04099429','04225987','04330267',
+               '04460130','04554684']
+
     if(useV1):
         #synsets = [f[0:-4] for f in os.listdir(config['shapenetDir']) if f.endswith('.csv')]
         synsets.sort()
@@ -134,10 +144,10 @@ if __name__ == "__main__":
             job_kwargs = {
                 "timeout_min": 60 * 10,
                 "name":  str(ii) + '_' + str(synset),
-                "slurm_partition": 'dev',
+                "slurm_partition": 'learnfair',
                 "gpus_per_node": 0,
                 #"tasks_per_node": 1,  # one task per GPU
-                "cpus_per_task": 10,
+                "cpus_per_task": 5,
                 "nodes": 1,
             }
             executor.update_parameters(**job_kwargs)
@@ -152,5 +162,6 @@ if __name__ == "__main__":
                 synset,
             )  # ID of your job
             ii += batch_size
+            time.sleep(0.2)
         
     print("Successfully launched submitit jobs")
